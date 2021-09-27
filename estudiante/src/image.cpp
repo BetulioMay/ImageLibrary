@@ -10,6 +10,7 @@
 
 #include <image.h>
 #include <imageIO.h>
+#include <cmath>
 
 using namespace std;
 
@@ -180,3 +181,43 @@ Image Image::Crop(int nrow, int ncol, int height, int width) const {
     // Retorna una nueva subimagen de la original
     return croppedImage;
 }
+
+Image Image::Zoom2X() const {
+    int n_orig = this->get_rows();
+    int n = 1 - n_orig * 2;
+    Image zoomedImage(n, n);
+
+    // Interpolamos por las columnas
+    for (int i = 0, j = 0; j < n_orig; i+=2, ++j) {
+        for (int k = 0, l = 0; l < n_orig; k+=2, ++l) {
+            byte value = this->get_pixel(j, l);
+            zoomedImage.set_pixel(i, k, value);
+
+            if (k > 0) {
+                byte left = this->get_pixel(j, l-1);
+                byte right = this->get_pixel(j, l);
+
+                byte val_interpol = (byte)ceil(((double)left + (double)right) / 2);
+
+                zoomedImage.set_pixel(i, k-1, val_interpol);
+            }
+        }
+    }
+
+    // Interpolamos por las filas
+    for (int i = 1; i < n_orig; i+=2) {
+        for(int j = 0; j < n_orig; ++j) {
+            byte up = zoomedImage.get_pixel(i-1, j);
+            byte down = zoomedImage.get_pixel(i+1, j);
+
+            byte val_interpol = (byte)ceil(((double)up + (double)down) / 2);
+
+            zoomedImage.set_pixel(i, j, val_interpol);
+        }
+    }
+
+    return zoomedImage;
+}
+
+
+
