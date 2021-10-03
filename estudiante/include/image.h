@@ -247,25 +247,60 @@ public :
     void Invert();
 
     // Modifica el contraste de una Imagen .
+    /**
+     * @brief Modifica el contraste de la imagen
+     * @param in1 umbral minimo de entrada
+     * @param in2 umbral maximo de entrada
+     * @param out1 umbral minimo de salida
+     * @param out2 umbral maximo de salida
+     * @pre 0 <= (in1, in2, out1, out2) <= 255
+     * @pre in1 < in2
+     * @pre out1 < out2
+     * @post El objeto imagen que llama la funcion es modificado
+     */
     void AdjustContrast (byte in1, byte in2, byte out1, byte out2);
 
-    // Calcula la media de los píxeles de una imagen entera o de un fragmento de ésta.
-    double Mean (int i, int j, int height, int width) const;
+    /**
+     * @brief Calcula la media de los pixeles de un fragmento de imagen
+     * @param row fila inicial del fragmento
+     * @param col columna inicial del fragmento
+     * @param height alto del fragmento
+     * @param width ancho del fragmento
+     * @return Devuelve la media del fragmento
+     */
+    double Mean (int row, int col, int height, int width) const;
 
     // Genera un icono como reducción de una imagen.
     Image Subsample(int factor) const;
 
-    // Genera una subimagen.
+    /**
+     * @brief Genera una subimagen de la original.
+     * @param nrow fila inicial del recorte.
+     * @param ncol columna inicial del recorte.
+     * @param height altura de la subimagen.
+     * @param width ancho de la subimagen.
+     * @return Devuelve una imagen recortada de la original.
+     * @post El objeto que llama la funcion no se modifica.
+     */
     Image Crop(int nrow, int ncol, int height, int width) const;
 
-    // Genera una imagen aumentada 2x.
-    Image Zoom2X() const;
+    /**
+     * @brief Genera una imagen resultado de la original aumentada x2.
+     * @param row fila inicial a aumentar.
+     * @param col columna inicial a aumentar.
+     * @param size longitud del lado de la imagen generada.
+     * @pre El recuadro definido por los parametros debe de estar dentro de la imagen en su totalidad.
+     * @return Devuelve la imagen aumentada x2 en el recuadro definido.
+     * @post El objeto que llama la funcion no se modifica.
+     */
+    Image Zoom2X(int row, int col, int size) const;
 
     // Copia el contenido de la imagen pasada como parámetro a la imagen que llama en la posición indicada.
     void PaintIn(Image & in, int i, int j);
 
     // Baraja pseudoaleatoriamente las filas de una imagen.
     void ShuffleRows();
+
 } ;
 
 

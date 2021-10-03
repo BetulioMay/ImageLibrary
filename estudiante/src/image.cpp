@@ -182,14 +182,13 @@ Image Image::Crop(int nrow, int ncol, int height, int width) const {
     return croppedImage;
 }
 
-Image Image::Zoom2X() const {
-    int n_orig = this->get_rows();
-    int n = 1 - n_orig * 2;
-    Image zoomedImage(n, n);
+Image Image::Zoom2X(int row, int col, int size) const {
+    int n = 2 * size - 1;
+    Image zoomedImage(n,n);
 
     // Interpolamos por las columnas
-    for (int i = 0, j = 0; j < n_orig; i+=2, ++j) {
-        for (int k = 0, l = 0; l < n_orig; k+=2, ++l) {
+    for (int i = 0, j = row; j-row < size; i+=2, ++j) {
+        for (int k = 0, l = col; l-col < size; k+=2, ++l) {
             byte value = this->get_pixel(j, l);
             zoomedImage.set_pixel(i, k, value);
 
@@ -197,7 +196,7 @@ Image Image::Zoom2X() const {
                 byte left = this->get_pixel(j, l-1);
                 byte right = this->get_pixel(j, l);
 
-                byte val_interpol = (byte)ceil(((double)left + (double)right) / 2);
+                byte val_interpol = (byte)round((left + right) / 2);
 
                 zoomedImage.set_pixel(i, k-1, val_interpol);
             }
@@ -205,19 +204,68 @@ Image Image::Zoom2X() const {
     }
 
     // Interpolamos por las filas
-    for (int i = 1; i < n_orig; i+=2) {
-        for(int j = 0; j < n_orig; ++j) {
+    for (int i = 1; i < n; i+=2) {
+        for(int j = 0; j < n; ++j) {
             byte up = zoomedImage.get_pixel(i-1, j);
             byte down = zoomedImage.get_pixel(i+1, j);
 
-            byte val_interpol = (byte)ceil(((double)up + (double)down) / 2);
+            byte val_interpol = (byte)round((up + down) / 2);
 
             zoomedImage.set_pixel(i, j, val_interpol);
         }
     }
 
+
+//    for(int i = 0, k = row; i < n; i+=2, ++k) {
+//        for(int j = 0, l = col; j < n; j+=2, ++l) {
+//            zoomedImage.set_pixel(i, j, this->get_pixel(k, l));
+//        }
+//    }
+//
+//    for(int i = 0; i < n; i+=2) {
+//        for(int j = 1; j < n; j+=2) {
+//            byte value = (zoomedImage.get_pixel(i, j-1) + zoomedImage.get_pixel(i, j+1)) / 2;
+//            zoomedImage.set_pixel(i, j, value);
+//        }
+//    }
+//
+//    for(int i = 1; i < n; i+=2) {
+//        for(int j = 0; j < n; ++j) {
+//            byte value = (zoomedImage.get_pixel(i-1, j) + zoomedImage.get_pixel(i+1, j)) / 2;
+//            zoomedImage.set_pixel(i, j, value);
+//        }
+//    }
+
     return zoomedImage;
 }
 
+void Image::AdjustContrast(byte in1, byte in2, byte out1, byte out2) {
+    const double rate = static_cast<double>((out2 - out1) / (in2 - in1));
+    const int rows = this->get_rows();
+    const int cols = this->get_cols();
 
+    byte value = 0;
+    byte z = 0;
 
+    for (int k = 0; k < rows*cols; ++k) {
+        z = this->get_pixel(k);
+        if (z <= in2 && z >= in1) {
+            value = (byte)round(out1 + (rate * (z - in1)));
+            this->set_pixel(k, value);
+        }
+    }
+}
+
+double Image::Mean(int row, int col, int height, int width) const {
+    int orig_width = this->get_rows();
+    int orig_height = this->get_cols();
+    double sum;
+
+    for(int i = row; i-row < height && i < orig_height; ++i) {
+        for(int j = col; j-col < width && j < orig_width; ++j) {
+            sum += this->get_pixel(i, j);
+        }
+    }
+
+    return sum / (height * width);
+}

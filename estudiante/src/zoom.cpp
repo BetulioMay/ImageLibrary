@@ -2,9 +2,6 @@
 // Created by Cesar A. Mayora on 25/9/21.
 //
 
-// Fichero subimagen.cpp genera una nueva imagen PGM recortada
-// de vacas.pgm
-
 #include <iostream>
 #include <cstring>
 #include <cstdlib>
@@ -19,9 +16,9 @@ int main (int argc, char *argv[]){
     Image image;
 
     // Comprobar validez de la llamada
-    if (argc != 7){
+    if (argc != 6){
         cerr << "Error: Numero incorrecto de parametros.\n";
-        cerr << "Uso: subimagen <FichImagenOriginal> <FichImagenDestino>\n";
+        cerr << "Uso: zoom <FichImagenOriginal> <FichImagenDestino>\n";
         exit (1);
     }
 
@@ -46,12 +43,12 @@ int main (int argc, char *argv[]){
     cout << "Dimensiones de " << origen << ":" << endl;
     cout << "   Imagen   = " << image.get_rows()  << " filas x " << image.get_cols() << " columnas " << endl;
 
-    // Recorta la imagen
-    int nrow = atoi(argv[3]), ncol = atoi(argv[4]), width = atoi(argv[5]), height = atoi(argv[6]);
-    Image croppedImage = image.Crop(nrow, ncol, height, width);
+    // Hace zoom a la imagen
+    int row = atoi(argv[3]), col = atoi(argv[4]), size = atoi(argv[5]);
+    Image zoomedImage(image.Zoom2X(row, col, size));
 
     // Guardar la imagen resultado en el fichero
-    if (croppedImage.Save(destino))
+    if (zoomedImage.Save(destino))
         cout  << "La imagen se guardo en " << destino << endl;
     else{
         cerr << "Error: No pudo guardarse la imagen." << endl;

@@ -2,7 +2,7 @@
 // Created by Cesar A. Mayora on 25/9/21.
 //
 
-// Fichero subimagen.cpp genera una nueva imagen PGM recortada
+// Fichero contraste.cpp cambia el contraste de
 // de vacas.pgm
 
 #include <iostream>
@@ -21,7 +21,7 @@ int main (int argc, char *argv[]){
     // Comprobar validez de la llamada
     if (argc != 7){
         cerr << "Error: Numero incorrecto de parametros.\n";
-        cerr << "Uso: subimagen <FichImagenOriginal> <FichImagenDestino>\n";
+        cerr << "Uso: contraste <FichImagenOriginal> <FichImagenDestino>\n";
         exit (1);
     }
 
@@ -46,12 +46,12 @@ int main (int argc, char *argv[]){
     cout << "Dimensiones de " << origen << ":" << endl;
     cout << "   Imagen   = " << image.get_rows()  << " filas x " << image.get_cols() << " columnas " << endl;
 
-    // Recorta la imagen
-    int nrow = atoi(argv[3]), ncol = atoi(argv[4]), width = atoi(argv[5]), height = atoi(argv[6]);
-    Image croppedImage = image.Crop(nrow, ncol, height, width);
+    // Cambia el contraste
+    byte e1 = atoi(argv[3]), e2 = atoi(argv[4]), s1 = atoi(argv[5]), s2 = atoi(argv[6]);
+    image.AdjustContrast(e1, e2, s1, s2);
 
     // Guardar la imagen resultado en el fichero
-    if (croppedImage.Save(destino))
+    if (image.Save(destino))
         cout  << "La imagen se guardo en " << destino << endl;
     else{
         cerr << "Error: No pudo guardarse la imagen." << endl;
