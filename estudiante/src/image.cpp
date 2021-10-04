@@ -228,7 +228,10 @@ Image Image::Zoom2X(int row, int col, int size) const {
     // Interpolamos por las columnas (columnas impares)
     for(int i = 0; i < n; i+=2) {
         for(int j = 1; j < n; j+=2) {
-            byte value = (byte)round((zoomedImage.get_pixel(i, j-1) + zoomedImage.get_pixel(i, j+1)) / 2);
+            auto left = (double)zoomedImage.get_pixel(i, j-1);
+            auto right = (double)zoomedImage.get_pixel(i, j+1);
+
+            byte value = (byte)floor((left + right) / 2.0);
             zoomedImage.set_pixel(i, j, value);
         }
     }
@@ -236,7 +239,10 @@ Image Image::Zoom2X(int row, int col, int size) const {
     // Interpolamos por las filas (filas impares)
     for(int i = 1; i < n; i+=2) {
         for(int j = 0; j < n; ++j) {
-            byte value = (byte)round((zoomedImage.get_pixel(i-1, j) + zoomedImage.get_pixel(i+1, j)) / 2);
+            auto up = (double)zoomedImage.get_pixel(i-1, j);
+            auto down = (double)zoomedImage.get_pixel(i+1, j);
+
+            byte value = (byte)floor((up + down) / 2.0);
             zoomedImage.set_pixel(i, j, value);
         }
     }
@@ -246,35 +252,25 @@ Image Image::Zoom2X(int row, int col, int size) const {
 }
 
 void Image::AdjustContrast(byte in1, byte in2, byte out1, byte out2) {
-    const double rate = static_cast<double>((out2 - out1) / (in2 - in1));
+    const double rate1 = (double)(((double)out1 - 0) / ((double)in1 - 0));
+    const double rate2 = (double)(((double)out2 - (double)out1) / ((double)in2 - (double)in1));
+    const double rate3 = (double)((255 - (double)out2) / (255 - (double)in2));
     const int rows = this->get_rows();
     const int cols = this->get_cols();
-    byte min = this->get_pixel(0), max = this->get_pixel(0);
 
     byte value = 0;
     byte z = 0;
 
-    // Encontramos los minimos valores de gris
-    for (int k = 0; k < rows*cols; ++k) {
-        value = this->get_pixel(k);
-        if (min > value) {
-            min = value;
-        }
-        if (max < value) {
-            max = value;
-        }
-    }
-
     for (int k = 0; k < rows*cols; ++k) {
         z = this->get_pixel(k);
         if (z < in1) {
-            value = min;
+            value = (byte)round(0 + (rate1 * ((double)z - 0)));
             this->set_pixel(k, value);
         } else if (z > in2) {
-            value = max;
+            value = (byte)round((double)out2 + (rate3 * ((double)z - (double)in2)));
             this->set_pixel(k, value);
         } else {
-            value = (byte)round(out1 + (rate * (z - in1)));
+            value = (byte)round((double)out1 + (rate2 * ((double)z - (double)in1)));
             this->set_pixel(k, value);
         }
     }
@@ -283,11 +279,11 @@ void Image::AdjustContrast(byte in1, byte in2, byte out1, byte out2) {
 double Image::Mean(int row, int col, int height, int width) const {
     int orig_width = this->get_rows();
     int orig_height = this->get_cols();
-    double sum;
+    double sum = 0;
 
     for(int i = row; i-row < height && i < orig_height; ++i) {
         for(int j = col; j-col < width && j < orig_width; ++j) {
-            sum += this->get_pixel(i, j);
+            sum += (double)this->get_pixel(i, j);
         }
     }
 
