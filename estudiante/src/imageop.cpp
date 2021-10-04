@@ -37,57 +37,25 @@ Image Image::Zoom2X(int row, int col, int size) const {
     Image zoomedImage(n,n);
 
     // Interpolamos por las columnas
-//    for (int i = 0, j = row; j-row < size; i+=2, ++j) {
-//        for (int k = 0, l = col; l-col < size; k+=2, ++l) {
-//            byte value = this->get_pixel(j, l);
-//            zoomedImage.set_pixel(i, k, value);
-//
-//            if (k > 0) {
-//                byte left = this->get_pixel(j, l-1);
-//                byte right = this->get_pixel(j, l);
-//
-//                byte val_interpol = (byte)round((left + right) / 2);
-//
-//                zoomedImage.set_pixel(i, k-1, val_interpol);
-//            }
-//        }
-//    }
-//
-//    // Interpolamos por las filas
-//    for (int i = 1; i < n; i+=2) {
-//        for(int j = 0; j < n; ++j) {
-//            byte up = zoomedImage.get_pixel(i-1, j);
-//            byte down = zoomedImage.get_pixel(i+1, j);
-//
-//            byte val_interpol = (byte)round((up + down) / 2);
-//
-//            zoomedImage.set_pixel(i, j, val_interpol);
-//        }
-//    }
+    for (int i = 0, j = row; j-row < size; i+=2, ++j) {
+        for (int k = 0, l = col; l-col < size; k+=2, ++l) {
+            byte value = this->get_pixel(j, l);
+            zoomedImage.set_pixel(i, k, value);
 
-    // Copia todos los bytes de la porcion de imagen descrita (filas y columnas pares)
-    for(int i = 0, k = row; i < n; i+=2, ++k) {
-        for(int j = 0, l = col; j < n; j+=2, ++l) {
-            byte value = this->get_pixel(k, l);
-            zoomedImage.set_pixel(i, j, value);
+            if (k > 0) {
+                byte left = this->get_pixel(j, l-1);
+                byte right = this->get_pixel(j, l);
+
+                byte interpol = (byte)(((double)left + (double)right) / 2.0);
+
+                zoomedImage.set_pixel(i, k-1, interpol);
+            }
         }
     }
 
-    // Interpolamos por las columnas (columnas impares)
-    for(int i = 0; i < n; i+=2) {
-        for(int j = 1; j < n; j+=2) {
-            auto left = (double)zoomedImage.get_pixel(i, j-1);
-            auto right = (double)zoomedImage.get_pixel(i, j+1);
-
-            byte value = (byte)((left + right) / 2.0);
-            zoomedImage.set_pixel(i, j, value);
-        }
-    }
-
-    // Interpolamos por las filas (filas impares)
-    for(int i = 1; i < n; i+=2) {
+    // Interpolamos por las filas
+    for (int i = 1; i < n; i+=2) {
         for(int j = 0; j < n; ++j) {
-
             double up;
             double down;
 
@@ -104,6 +72,46 @@ Image Image::Zoom2X(int row, int col, int size) const {
             zoomedImage.set_pixel(i, j, value);
         }
     }
+
+//    // Copia todos los bytes de la porcion de imagen descrita (filas y columnas pares)
+//    for(int i = 0, k = row; i < n; i+=2, ++k) {
+//        for(int j = 0, l = col; j < n; j+=2, ++l) {
+//            byte value = this->get_pixel(k, l);
+//            zoomedImage.set_pixel(i, j, value);
+//        }
+//    }
+//
+//    // Interpolamos por las columnas (columnas impares)
+//    for(int i = 0; i < n; i+=2) {
+//        for(int j = 1; j < n; j+=2) {
+//            auto left = (double)zoomedImage.get_pixel(i, j-1);
+//            auto right = (double)zoomedImage.get_pixel(i, j+1);
+//
+//            byte value = (byte)((left + right) / 2.0);
+//            zoomedImage.set_pixel(i, j, value);
+//        }
+//    }
+//
+//    // Interpolamos por las filas (filas impares)
+//    for(int i = 1; i < n; i+=2) {
+//        for(int j = 0; j < n; ++j) {
+//
+//            double up;
+//            double down;
+//
+//            // Filas pares
+//            if (j % 2 == 0) {
+//                up = (double)zoomedImage.get_pixel(i-1, j);
+//                down = (double)zoomedImage.get_pixel(i+1, j);
+//            } else {
+//                // Filas impares
+//                up = ((double)zoomedImage.get_pixel(i-1, j-1) + (double)zoomedImage.get_pixel(i-1, j+1)) / 2.0;
+//                down = ((double)zoomedImage.get_pixel(i+1, j-1) + (double)zoomedImage.get_pixel(i+1, j+1)) / 2.0;
+//            }
+//            byte value = (byte)((up + down) / 2.0);
+//            zoomedImage.set_pixel(i, j, value);
+//        }
+//    }
 
     // Retornamos imagen con zoom x2
     return zoomedImage;
