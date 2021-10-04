@@ -18,7 +18,7 @@ int main (int argc, char *argv[]){
     // Comprobar validez de la llamada
     if (argc != 6){
         cerr << "Error: Numero incorrecto de parametros.\n";
-        cerr << "Uso: zoom <FichImagenOriginal> <FichImagenDestino>\n";
+        cerr << "Uso: zoom <FichImagenOriginal> <FichImagenDestino> <fila> <columna> <lado>\n";
         exit (1);
     }
 
