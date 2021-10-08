@@ -36,23 +36,23 @@ Image Image::Zoom2X(int row, int col, int size) const {
     int n = (2 * size) - 1;
     Image zoomedImage(n,n);
 
-    // Interpolamos por las columnas
+    // Copiamos valores de la original e interpolamos por las columnas
     for (int i = 0, j = row; j-row < size; i+=2, ++j) {
-        for (int k = 0, l = col; l-col < size; k+=2, ++l) {
+        byte value = this->get_pixel(j, col);
+        zoomedImage.set_pixel(i, 0, value);
+
+        for (int k = 2, l = col+1; l-col < size; k+=2, ++l) {
             byte value = this->get_pixel(j, l);
             zoomedImage.set_pixel(i, k, value);
 
-            if (k > 0) {
-                byte left = this->get_pixel(j, l-1);
-                byte right = this->get_pixel(j, l);
+            byte left = this->get_pixel(j, l-1);
+            byte right = this->get_pixel(j, l);
 
-                byte interpol = (byte)(((double)left + (double)right) / 2.0);
+            byte interpol = (byte)round(((double)left + (double)right) / 2.0);
 
-                zoomedImage.set_pixel(i, k-1, interpol);
-            }
+            zoomedImage.set_pixel(i, k-1, interpol);
         }
     }
-
     // Interpolamos por las filas
     for (int i = 1; i < n; i+=2) {
         for(int j = 0; j < n; ++j) {
@@ -68,7 +68,7 @@ Image Image::Zoom2X(int row, int col, int size) const {
                 up = ((double)zoomedImage.get_pixel(i-1, j-1) + (double)zoomedImage.get_pixel(i-1, j+1)) / 2.0;
                 down = ((double)zoomedImage.get_pixel(i+1, j-1) + (double)zoomedImage.get_pixel(i+1, j+1)) / 2.0;
             }
-            byte value = (byte)((up + down) / 2.0);
+            byte value = (byte)round((up + down) / 2.0);
             zoomedImage.set_pixel(i, j, value);
         }
     }
@@ -121,8 +121,8 @@ void Image::AdjustContrast(byte in1, byte in2, byte out1, byte out2) {
     const auto rate1 = (double)(((double)out1 - 0) / ((double)in1 - 0));
     const auto rate2 = (double)(((double)out2 - (double)out1) / ((double)in2 - (double)in1));
     const auto rate3 = (double)((255 - (double)out2) / (255 - (double)in2));
-    const int rows = this->get_rows();
-    const int cols = this->get_cols();
+//    const int rows = this->get_rows();
+//    const int cols = this->get_cols();
 
     byte value = 0;
     byte z = 0;
