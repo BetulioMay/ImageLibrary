@@ -142,6 +142,24 @@ void Image::AdjustContrast(byte in1, byte in2, byte out1, byte out2) {
     }
 }
 
+void Image::ShuffleRows() {
+    const int p = 9973;
+    int newr;
+
+    // Creamos un nuevo puntero a punteros
+    byte ** n_img = new byte * [rows];
+
+    // Asignamos las filas barajadas de img a n_img
+    for (int r = 0; r < this->rows; ++r) {
+        newr = (r*p) % this->rows;
+        n_img[r] = this->img[newr];
+    }
+
+    // Le asignamos a img la nueva imagen con filas barajadas y liberamos memoria
+    this->img = n_img;
+    n_img = nullptr;
+}
+
 double Image::Mean(int row, int col, int height, int width) const {
     int orig_width = this->get_rows();
     int orig_height = this->get_cols();

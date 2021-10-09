@@ -298,7 +298,11 @@ public :
     // Copia el contenido de la imagen pasada como parámetro a la imagen que llama en la posición indicada.
     void PaintIn(Image & in, int i, int j);
 
-    // Baraja pseudoaleatoriamente las filas de una imagen.
+    /**
+     * @brief Baraja pseudoaleatoriamente las filas de una imagen.
+     * @pre rows < 9973
+     * @post La imagen que llama la funcion es modificada
+     */
     void ShuffleRows();
 
 } ;
