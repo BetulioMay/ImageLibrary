@@ -45,7 +45,8 @@ int main (int argc, char *argv[]){
 
     // Hace zoom a la imagen
     int row = atoi(argv[3]), col = atoi(argv[4]), size = atoi(argv[5]);
-    Image zoomedImage(image.Zoom2X(row, col, size));
+    Image cropped_image = image.Crop(row, col, size, size);
+    Image zoomedImage(cropped_image.Zoom2X());
 
     // Guardar la imagen resultado en el fichero
     if (zoomedImage.Save(destino))

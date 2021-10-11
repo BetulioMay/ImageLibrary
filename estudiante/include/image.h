@@ -279,6 +279,8 @@ public :
      * @param ncol columna inicial del recorte.
      * @param height altura de la subimagen.
      * @param width ancho de la subimagen.
+     * @pre nrow < rows
+     * @pre ncol < cols
      * @return Devuelve una imagen recortada de la original.
      * @post El objeto que llama la funcion no se modifica.
      */
@@ -293,7 +295,7 @@ public :
      * @return Devuelve la imagen aumentada x2 en el recuadro definido.
      * @post El objeto que llama la funcion no se modifica.
      */
-    Image Zoom2X(int row, int col, int size) const;
+    Image Zoom2X() const;
 
     // Copia el contenido de la imagen pasada como parámetro a la imagen que llama en la posición indicada.
     void PaintIn(Image & in, int i, int j);

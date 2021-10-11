@@ -32,17 +32,17 @@ Image Image::Crop(int nrow, int ncol, int height, int width) const {
     return croppedImage;
 }
 
-Image Image::Zoom2X(int row, int col, int size) const {
-    int n = (2 * size) - 1;
+Image Image::Zoom2X() const {
+    int n = (2 * this->get_rows()) - 1;
     Image zoomedImage(n,n);
 
     // Copiamos valores de la original e interpolamos por las columnas
-    for (int i = 0, j = row; j-row < size; i+=2, ++j) {
-        byte value = this->get_pixel(j, col);
+    for (int i = 0, j = 0; i < n; i+=2, ++j) {
+        byte value = this->get_pixel(j, 0);
         zoomedImage.set_pixel(i, 0, value);
 
-        for (int k = 2, l = col+1; l-col < size; k+=2, ++l) {
-            byte value = this->get_pixel(j, l);
+        for (int k = 2, l = 1; k < n; k+=2, ++l) {
+            value = this->get_pixel(j, l);
             zoomedImage.set_pixel(i, k, value);
 
             byte left = this->get_pixel(j, l-1);
