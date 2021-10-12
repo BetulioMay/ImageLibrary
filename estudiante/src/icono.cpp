@@ -1,9 +1,10 @@
 //
-// Created by Cesar A. Mayora on 25/9/21.
+// Created by cezeitar on 11/10/21.
 //
 
+
 /**
- * @file Fichero barajar.cpp, baraja de manera pseudoaleatoria las filas de una imagen
+ * @file Fichero icono.cpp, Genera una nueva imagen minimizada de la original por un factor
  */
 
 #include <iostream>
@@ -20,7 +21,7 @@ int main (int argc, char *argv[]){
     Image image;
 
     // Comprobar validez de la llamada
-    if (argc != 3){
+    if (argc != 4){
         cerr << "Error: Numero incorrecto de parametros.\n";
         cerr << "Uso: barajar <FichImagenOriginal> <FichImagenDestino>";
         exit (1);
@@ -47,11 +48,12 @@ int main (int argc, char *argv[]){
     cout << "Dimensiones de " << origen << ":" << endl;
     cout << "   Imagen   = " << image.get_rows()  << " filas x " << image.get_cols() << " columnas " << endl;
 
-    // Barajar la imagen
-    image.ShuffleRows();
+    // Recorta la imagen
+    int factor = atoi(argv[3]);
+    Image icon = image.Subsample(factor);
 
     // Guardar la imagen resultado en el fichero
-    if (image.Save(destino))
+    if (icon.Save(destino))
         cout  << "La imagen se guardo en " << destino << endl;
     else{
         cerr << "Error: No pudo guardarse la imagen." << endl;

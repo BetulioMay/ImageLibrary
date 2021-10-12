@@ -43,11 +43,15 @@ class Image{
 
       @section invImagen Invariante de la representación.
 
-      RELLENAR POR ESTUDIANTE
+      - 0 < rows
+      - 0 < cols
+      - 0 <= img[x][y] < 256,   ∀ x < rows, y < cols.
 
       @section faImagen Función de abstracción
 
-      RELLENAR POR ESTUDIANTE
+      Representacion -> Imagen\n
+      img -> Matriz img ancho x alto de unsigned chars (bytes)
+
     **/
 
 private :
@@ -246,7 +250,6 @@ public :
     // Invierte
     void Invert();
 
-    // Modifica el contraste de una Imagen .
     /**
      * @brief Modifica el contraste de la imagen
      * @param in1 umbral minimo de entrada
@@ -261,12 +264,12 @@ public :
     void AdjustContrast (byte in1, byte in2, byte out1, byte out2);
 
     /**
-     * @brief Calcula la media de los pixeles de un fragmento de imagen
-     * @param row fila inicial del fragmento
-     * @param col columna inicial del fragmento
-     * @param height alto del fragmento
-     * @param width ancho del fragmento
-     * @return Devuelve la media del fragmento
+     * @brief Calcula la media de los pixeles de un fragmento de imagen.
+     * @param row fila inicial del fragmento.
+     * @param col columna inicial del fragmento.
+     * @param height alto del fragmento.
+     * @param width ancho del fragmento.
+     * @return Devuelve la media del fragmento.
      */
     double Mean (int row, int col, int height, int width) const;
 
@@ -279,8 +282,8 @@ public :
      * @param ncol columna inicial del recorte.
      * @param height altura de la subimagen.
      * @param width ancho de la subimagen.
-     * @pre nrow < rows
-     * @pre ncol < cols
+     * @pre nrow < rows.
+     * @pre ncol < cols.
      * @return Devuelve una imagen recortada de la original.
      * @post El objeto que llama la funcion no se modifica.
      */
@@ -288,11 +291,8 @@ public :
 
     /**
      * @brief Genera una imagen resultado de la original aumentada x2.
-     * @param row fila inicial a aumentar.
-     * @param col columna inicial a aumentar.
-     * @param size longitud del lado de la imagen generada.
-     * @pre El recuadro definido por los parametros debe de estar dentro de la imagen en su totalidad.
-     * @return Devuelve la imagen aumentada x2 en el recuadro definido.
+     * @pre En la imagen que llama a la funcion, rows == cols.
+     * @return Devuelve la imagen aumentada x2.
      * @post El objeto que llama la funcion no se modifica.
      */
     Image Zoom2X() const;
@@ -302,8 +302,8 @@ public :
 
     /**
      * @brief Baraja pseudoaleatoriamente las filas de una imagen.
-     * @pre rows < 9973
-     * @post La imagen que llama la funcion es modificada
+     * @pre rows < 9973.
+     * @post La imagen que llama la funcion es modificada.
      */
     void ShuffleRows();
 
