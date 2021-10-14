@@ -149,96 +149,44 @@ void Image::AdjustContrast(byte in1, byte in2, byte out1, byte out2) {
 }
 
 void Image::ShuffleRows() {
-    const int p = 9973;
+    const int p =  9973  ;
+    Image temp(rows,cols);
     int newr;
-
-    // Creamos un nuevo puntero a punteros
-    byte ** n_img = new byte * [rows];
-
-    // Asignamos las filas barajadas de img a n_img
-    for (int r = 0; r < this->rows; ++r) {
-        newr = (r*p) % this->rows;
-        n_img[r] = this->img[newr];
+    for (int r=0; r<rows; r++){
+        newr = (r*p) % rows;
+        for (int c=0; c<cols;c++)
+            temp.set_pixel(r,c,get_pixel(newr,c));
     }
-
-    // Le asignamos a img la nueva imagen con filas barajadas y liberamos memoria
-    this->img = n_img;
-    n_img = nullptr;
+    Copy(temp);
+//    const int p = 9973;
+//    int newr;
+//
+//    // Creamos un nuevo puntero a punteros
+//    byte ** n_img = new byte * [rows];
+//
+//    // Asignamos las filas barajadas de img a n_img
+//    for (int r = 0; r < this->rows; ++r) {
+//        newr = (r*p) % this->rows;
+//        n_img[r] = this->img[newr];
+//    }
+//
+//    // Le asignamos a img la nueva imagen con filas barajadas y liberamos memoria
+//    this->img = n_img;
+//    n_img = nullptr;
 }
 
 Image Image::Subsample(int factor) const {
-    if(factor > 0){
-        int nf = rows/factor;
-        int nc = cols/factor;
+    int i_rows = floor(rows*1.0 / factor*1.0), i_cols = floor(cols*1.0 / factor*1.0);
+    Image icon(i_rows, i_cols);
 
-        Image image(nf, nc);
-
-        bool factor_fils = (rows % nf == 0);
-        bool factor_cols = (cols % nc == 0);
-
-        double prop_fils = rows/nf;
-        double prop_cols = cols/nc;
-
-        int comp_fils = (int) nf * (prop_fils - (int) prop_fils);
-        int comp_cols = (int) nc * (prop_cols - (int) prop_cols);
-
-        int elem_filcomp = prop_fils;
-        int elem_colcomp = prop_cols;
-
-        if(!prop_fils) {
-            elem_filcomp++; //Elementos que se cogen de una fila o columna
-
-            if (!prop_cols)
-                elem_colcomp++;
-
-            //1º paso para filas completas y columnas completas
-
-            for (int i = 0; i < comp_fils; i++) {
-                for (int j = 0; j < comp_cols; j++)
-                    image.img[i][j] = (byte) Mean(i * elem_filcomp, j * elem_colcomp, (i + 1) * (elem_filcomp) - 1,
-                                                  (j + 1) * (elem_colcomp) - 1);
-            }
+    for (int i = 0, i_icon = 0; i < rows-(rows%factor); i+=factor, ++i_icon) {
+        for (int j = 0, j_icon = 0; j < cols-(cols%factor); j+=factor, ++j_icon) {
+            byte value = (byte) round(this->Mean(i, j, factor, factor));
+            icon.set_pixel(i_icon, j_icon, value);
         }
-        //i+1 y j+1 es hasta el lugar donde calcularemos
-        //2º paso hasta la columna final y filas enteras
-
-        if(!prop_cols){
-            elem_colcomp--;
-
-            for(int i = 0; i < comp_fils; i++){
-                for(int j = 0; j < nc; j++)
-                    image.img[i][j] = (byte) Mean(i*elem_filcomp, j*(elem_colcomp)+comp_cols,(i+1)*(elem_colcomp)-1,(j+1)*(elem_colcomp)-1+comp_cols);
-            }
-        }
-        //sumamos cols completas porque tenemos que tener en cuenta las columnas procesadas
-
-        //3º zona hasta la fila final y columnas completas
-        if(!prop_fils){
-            elem_filcomp--;
-            if(!prop_cols)
-                elem_colcomp++; //Incremento el valor y llegamos a columnas completas
-            for(int i = comp_fils; i < nf; i++){
-                for(int j = 0; j < comp_cols; j++)
-                    image.img[i][j] = (byte) Mean(i*elem_filcomp+comp_fils, j*elem_colcomp,(i+1)*(elem_filcomp)-1+comp_fils, (j+1)*(elem_colcomp)-1);
-            }
-        }
-
-        //4º zona, hasta la fila final y columna final. Es el resto de la imagen
-
-        if(!prop_cols){
-            elem_colcomp--;
-
-            for(int i = comp_fils; i < nf; i++){
-                for(int j = comp_cols; j < nc; j++)
-                    image.img[i][j] = (byte) Mean(i*elem_filcomp+comp_fils, j*elem_colcomp+comp_cols, (i+1)*(elem_filcomp)-1+comp_fils, (j+1)*(elem_colcomp)-1+comp_cols);
-            }
-        }
-
-        return image;
-
     }
-    else
-        exit(1);
+
+    return icon;
 }
 
 double Image::Mean(int row, int col, int height, int width) const {

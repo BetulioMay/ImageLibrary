@@ -273,7 +273,14 @@ public :
      */
     double Mean (int row, int col, int height, int width) const;
 
-    // Genera un icono como reducción de una imagen.
+    /**
+     * @brief Genera un icono como reduccion de la imagen original
+     * @param factor factor de reduccion de la imagen
+     * @pre factor > 0
+     * @return Retorna una imagen reducida de la original
+     * @post La imagen generada tendra dimensiones ancho/factor x alto/factor tomando la parte entera de la division
+     * @post El objeto que llama la funcion no se modifica
+     */
     Image Subsample(int factor) const;
 
     /**
