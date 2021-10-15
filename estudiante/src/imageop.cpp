@@ -37,23 +37,22 @@ Image Image::Zoom2X() const {
     Image zoomedImage(n,n);
 
     // Copiamos valores de la original e interpolamos por las columnas
-    for (int i = 0, j = 0; i < n; i+=2, ++j) {
+    for (int i = 0, i_orig = 0; i < n; i+=2, ++i_orig) {
 
-        byte value = this->get_pixel(j, 0);
+        byte value = this->get_pixel(i_orig, 0);
         zoomedImage.set_pixel(i, 0, value);
 
-        for (int k = 2, l = 1; k < n; k+=2, ++l) {
+        for (int j = 2, j_orig = 1; j < n; j+=2, ++j_orig) {
             // Copiamos el valor
-            value = this->get_pixel(j, l);
-            zoomedImage.set_pixel(i, k, value);
-
-            byte left = this->get_pixel(j, l-1);
-            byte right = this->get_pixel(j, l);
+            value = this->get_pixel(i_orig, j_orig);
+            zoomedImage.set_pixel(i, j, value);
 
             // Interpolamos por las filas
+            byte left = this->get_pixel(i_orig, j_orig - 1);
+            byte right = this->get_pixel(i_orig, j_orig);
             byte interpol = (byte)round(((double)left + (double)right) / 2.0);
 
-            zoomedImage.set_pixel(i, k-1, interpol);
+            zoomedImage.set_pixel(i, j - 1, interpol);
         }
     }
     // Interpolamos por las filas
@@ -67,7 +66,8 @@ Image Image::Zoom2X() const {
                 up = (double)zoomedImage.get_pixel(i-1, j);
                 down = (double)zoomedImage.get_pixel(i+1, j);
             } else {
-                // Filas impares
+                // Filas impares, calculamos la interpolacion de los valores de 'arriba' y 'abajo'
+                // para evitar perdidas de precision
                 up = ((double)zoomedImage.get_pixel(i-1, j-1) + (double)zoomedImage.get_pixel(i-1, j+1)) / 2.0;
                 down = ((double)zoomedImage.get_pixel(i+1, j-1) + (double)zoomedImage.get_pixel(i+1, j+1)) / 2.0;
             }
@@ -76,56 +76,16 @@ Image Image::Zoom2X() const {
         }
     }
 
-//    // Copia todos los bytes de la porcion de imagen descrita (filas y columnas pares)
-//    for(int i = 0, k = row; i < n; i+=2, ++k) {
-//        for(int j = 0, l = col; j < n; j+=2, ++l) {
-//            byte value = this->get_pixel(k, l);
-//            zoomedImage.set_pixel(i, j, value);
-//        }
-//    }
-//
-//    // Interpolamos por las columnas (columnas impares)
-//    for(int i = 0; i < n; i+=2) {
-//        for(int j = 1; j < n; j+=2) {
-//            auto left = (double)zoomedImage.get_pixel(i, j-1);
-//            auto right = (double)zoomedImage.get_pixel(i, j+1);
-//
-//            byte value = (byte)((left + right) / 2.0);
-//            zoomedImage.set_pixel(i, j, value);
-//        }
-//    }
-//
-//    // Interpolamos por las filas (filas impares)
-//    for(int i = 1; i < n; i+=2) {
-//        for(int j = 0; j < n; ++j) {
-//
-//            double up;
-//            double down;
-//
-//            // Filas pares
-//            if (j % 2 == 0) {
-//                up = (double)zoomedImage.get_pixel(i-1, j);
-//                down = (double)zoomedImage.get_pixel(i+1, j);
-//            } else {
-//                // Filas impares
-//                up = ((double)zoomedImage.get_pixel(i-1, j-1) + (double)zoomedImage.get_pixel(i-1, j+1)) / 2.0;
-//                down = ((double)zoomedImage.get_pixel(i+1, j-1) + (double)zoomedImage.get_pixel(i+1, j+1)) / 2.0;
-//            }
-//            byte value = (byte)((up + down) / 2.0);
-//            zoomedImage.set_pixel(i, j, value);
-//        }
-//    }
-
     // Retornamos imagen con zoom x2
     return zoomedImage;
 }
 
 void Image::AdjustContrast(byte in1, byte in2, byte out1, byte out2) {
-    const auto rate1 = (double)(((double)out1 - 0) / ((double)in1 - 0));
-    const auto rate2 = (double)(((double)out2 - (double)out1) / ((double)in2 - (double)in1));
-    const auto rate3 = (double)((255 - (double)out2) / (255 - (double)in2));
-//    const int rows = this->get_rows();
-//    const int cols = this->get_cols();
+
+    // Calculamos las pendientes de las rectas de la funcion a trozos
+    const auto slope1 = (double)(((double)out1 - 0) / ((double)in1 - 0));
+    const auto slope2 = (double)(((double)out2 - (double)out1) / ((double)in2 - (double)in1));
+    const auto slope3 = (double)((255 - (double)out2) / (255 - (double)in2));
 
     byte value = 0;
     byte z = 0;
@@ -134,21 +94,23 @@ void Image::AdjustContrast(byte in1, byte in2, byte out1, byte out2) {
         z = this->get_pixel(k);
         if (z < in1) {
             // El valor esta por debajo del intervalo
-            value = (byte)round(0 + (rate1 * ((double)z - 0)));
+            value = (byte)round(0 + (slope1 * ((double)z - 0)));
             this->set_pixel(k, value);
         } else if (z > in2) {
             // El valor esta por encima del intervalo
-            value = (byte)round((double)out2 + (rate3 * ((double)z - (double)in2)));
+            value = (byte)round((double)out2 + (slope3 * ((double)z - (double)in2)));
             this->set_pixel(k, value);
         } else {
             // El valor esta dentro del intervalo
-            value = (byte)round((double)out1 + (rate2 * ((double)z - (double)in1)));
+            value = (byte)round((double)out1 + (slope2 * ((double)z - (double)in1)));
             this->set_pixel(k, value);
         }
     }
 }
 
 void Image::ShuffleRows() {
+    // Implementacion 1 proporsionada por el profesorado
+/*
     const int p =  9973  ;
     Image temp(rows,cols);
     int newr;
@@ -158,21 +120,26 @@ void Image::ShuffleRows() {
             temp.set_pixel(r,c,get_pixel(newr,c));
     }
     Copy(temp);
-//    const int p = 9973;
-//    int newr;
-//
-//    // Creamos un nuevo puntero a punteros
-//    byte ** n_img = new byte * [rows];
-//
-//    // Asignamos las filas barajadas de img a n_img
-//    for (int r = 0; r < this->rows; ++r) {
-//        newr = (r*p) % this->rows;
-//        n_img[r] = this->img[newr];
-//    }
-//
-//    // Le asignamos a img la nueva imagen con filas barajadas y liberamos memoria
-//    this->img = n_img;
-//    n_img = nullptr;
+*/
+    /*
+     * TODO: Change ADT internal representation to put this on work
+     */
+    // Implementacion 2
+    const int p = 9973;
+    int newr;
+
+    // Creamos un nuevo puntero a punteros
+    byte ** n_img = new byte * [rows];
+
+    // Asignamos las filas barajadas de img a n_img
+    for (int r = 0; r < this->rows; ++r) {
+        newr = (r*p) % this->rows;
+        n_img[r] = this->img[newr];
+    }
+
+    // Le asignamos a img la nueva imagen con filas barajadas
+    this->img = n_img;
+    n_img = nullptr;
 }
 
 Image Image::Subsample(int factor) const {
@@ -181,11 +148,14 @@ Image Image::Subsample(int factor) const {
 
     for (int i = 0, i_icon = 0; i < rows-(rows%factor); i+=factor, ++i_icon) {
         for (int j = 0, j_icon = 0; j < cols-(cols%factor); j+=factor, ++j_icon) {
-            byte value = (byte) round(this->Mean(i, j, factor, factor));
+            // Tomamos submatrices de orden factor x factor y calculamos la media de todos sus elementos
+            byte value = (byte)round(this->Mean(i, j, factor, factor));
+            // Asignamos el valor de la media redondeada al valor mas proximo a la imagen icono
             icon.set_pixel(i_icon, j_icon, value);
         }
     }
 
+    // Retornamos la imagen icono
     return icon;
 }
 
@@ -200,5 +170,5 @@ double Image::Mean(int row, int col, int height, int width) const {
         }
     }
 
-    return sum / (height * width);
+    return sum / (height * width * 1.0);
 }
