@@ -11,8 +11,79 @@
 #include <cstdlib>
 
 #include <image.h>
+#include <ctime>
+#include <iomanip>
 
 using namespace std;
+
+void test_rows() {
+    /*
+     * Test diferentes filas
+     * Para cada nuevo numero de filas creamos una nueva imagen con dicho numero de filas
+     * y un numero de columnas constante.
+     * Se medira e informara del tiempo empleado en barajar las filas de la imagen.
+     */
+    const int ncols = 500;
+
+    clock_t tini;
+    clock_t tfin;
+
+    int nrows;
+    for (nrows = 1; nrows < 500; ++nrows) {
+        Image img(nrows, ncols);
+
+        tini = clock();
+        img.ShuffleRows();
+        tfin = clock();
+
+        cout << "N filas: " << nrows << "\t" << (double)(tfin - tini) << " ms" << "\n";
+    }
+
+}
+
+void test_cols() {
+    /*
+     * Test diferentes cols
+     * Para cada nuevo numero de columnas creamos una nueva imagen con dicho numero de columnas
+     * y un numero de filas constante.
+     * Se medira e informara del tiempo empleado en barajar las filas de la imagen.
+     */
+    const int nfilas = 500;
+
+    clock_t tini;
+    clock_t tfin;
+
+    int ncols;
+    for (ncols = 0; ncols < 500; ++ncols) {
+        Image img(nfilas, ncols);
+
+        tini = clock();
+        img.ShuffleRows();
+        tfin = clock();
+
+        cout << "N cols: " << ncols << "\t" << (double)(tfin - tini) << " ms" << "\n";
+    }
+
+}
+
+void test_calls(Image image) {
+    /*
+     * Test diferente numero de llamadas
+     */
+    int i = 0;
+    clock_t tini;
+    clock_t tfin;
+
+    for (int n = 0; n < 1000; n+=100){
+        tini = clock();
+        while (i < n) {
+            image.ShuffleRows();
+            i++;
+        }
+        tfin = clock();
+        cout << "N llamadas: " << n << " \t" << (double) (tfin - tini) << " ms" << "\n";
+    }
+}
 
 int main (int argc, char *argv[]){
 
@@ -45,7 +116,26 @@ int main (int argc, char *argv[]){
     // Mostrar los parametros de la Imagen
     cout << endl;
     cout << "Dimensiones de " << origen << ":" << endl;
-    cout << "   Imagen   = " << image.get_rows()  << " filas x " << image.get_cols() << " columnas " << endl;
+    cout << "   Imagen   = " << image.get_rows()  << " filas x " << image.get_cols() << " columnas " << "\n";
+
+
+    int n_test;
+    cout << "Choose test: "; cin >> n_test;
+    switch(n_test) {
+        case 1:
+            test_rows();
+            break;
+        case 2:
+            test_cols();
+            break;
+        case 3:
+            test_calls(image);
+            break;
+        default:
+            cout << "Wrong test number." << "\n";
+            cout << "Continuing with program" << "\n";
+            break;
+    }
 
     // Barajar la imagen
     image.ShuffleRows();

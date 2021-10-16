@@ -37,5 +37,204 @@ Calcula el negativo de una imagen
 @param <FichImagenDestino> Imagen PGM resultado de calcular el negativo
 
 
+*Imagen resultados*
+## Barajar:
+
+Baraja pseudoaleatoriamente las filas de la imagen.
+
+_parametros_
+
+Para este ejercicio ademas de implementar y documentar la funcion `ShuffleRows`, debiamos de comentar las diferencias entre
+la implementacion propuesta en el guion de practicas con una implementacion nueva que debiamos de implementar, haciendo uso
+de unos tests que nos piden implementar para estudiar el comportamiento de la funcion con distinto numero de filas y columnas.
+
+### Primera implementacion
+La primera implementacion del metodo esta implementada en el guion de practicas y servia como un acercamiento "boraz" a la
+definicion del metodo.
+
+```
+const int p =  9973  ;
+Image temp(rows,cols);
+int newr;
+for (int r=0; r<rows; r++){
+newr = (r*p) % rows;
+for (int c=0; c<cols;c++)
+    temp.set_pixel(r,c,get_pixel(newr,c));
+}
+Copy(temp);
+```
+
+Como vemos, el codigo consta de dos bucles anidados, uno itera sobre rows donde calcula el nuevo valor de fila
+y el otro sobre cols que copia el contenido de la nueva fila en la nueva imagen. Y al final copia el contenido de la imagen
+temporal en la imagen original, pues esta funcion no pretende generar una nueva imagen. Por lo tanto podemos decir que
+el orden de eficiencia de esta primera aproximacion es de __O(rows * cols)__, si tenemos en cuenta el hecho de que se esta volviendo
+a iterar sobre la imagen temporal para copiar la nueva imagen que es de orden __O(rows * cols)__, entonces el orden de eficiencia
+seria de __O((rows*cols) ^ 2)__; en el caso de la imagen usada para probar el codigo seria __O(n^2)__, siendo n = rows = cols.
+
+A continuacion vamos a ver los resultados de los tests con esta implementacion con el objetivo de observar el comportamiento
+de esta:
+
+#### Test 1. Distinto numero de filas
+```
+void test_rows() {
+    /*
+     * Test diferentes filas
+     * Para cada nuevo numero de filas creamos una nueva imagen con dicho numero de filas
+     * y un numero de columnas constante.
+     * Se medira e informara del tiempo empleado en barajar las filas de la imagen.
+     */
+    const int ncols = 500;
+    clock_t tini;
+    clock_t tfin;
+
+    int nrows;
+    for (nrows = 1; nrows < 500; ++nrows) {
+        Image img(nrows, ncols);
+
+        tini = clock();
+        img.ShuffleRows();
+        tfin = clock();
+
+        cout << "N filas: " << nrows << "\t" << (double)(tfin - tini) << " ms" << "\n";
+    }
+}
+```
+_imagen exper1_
+
+Como se puede observar, el comportamiento de esta grafica parece ser lineal. Esto se debe a que estamos dejando el numero de
+columnas fijo mientras que el numero de filas crece, por lo tanto el orden de complejidad seria: __O(nrows * ncols)__
+el numero de columnas al ser fijo su orden de eficiencia es constante, entonces __O(nrows * ncols) = O(nrows)__.
+
+#### Test 2. Distinto numero de columnas
+```
+void test_cols() {
+    /*
+     * Test diferentes cols
+     * Para cada nuevo numero de columnas creamos una nueva imagen con dicho numero de columnas
+     * y un numero de filas constante.
+     * Se medira e informara del tiempo empleado en barajar las filas de la imagen.
+     */
+    const int nfilas = 500;
+    clock_t tini;
+    clock_t tfin;
+
+    int ncols;
+    for (ncols = 0; ncols < 500; ++ncols) {
+        Image img(nfilas, ncols);
+
+        tini = clock();
+        img.ShuffleRows();
+        tfin = clock();
+
+        cout << "N cols: " << ncols << "\t" << (double)(tfin - tini) << " ms" << "\n";
+    }
+}
+```
+_imagen exper2_
+
+Este test tiene bastante similitud con el anterior, pues tiene la misma metodologia: el numero de filas se que da fijo y el
+de columnas es el que va cambiando con cada iteracion. Por tanto, el orden de eficiencia de este codigo es
+__O(ncols * nrows) = O(ncols)__.
+
+#### Test 3. Distinto numero de llamadas a ShuffleRows
+```
+void test_calls(Image image) {
+    /*
+     * Test diferente numero de llamadas
+     */
+    int i = 0;
+    clock_t tini;
+    clock_t tfin;
+
+    for (int n = 0; n < 1000; n+=100){
+        tini = clock();
+        while (i < n) {
+            image.ShuffleRows();
+            i++;
+        }
+        tfin = clock();
+        cout << "N llamadas: " << n << " \t" << (double) (tfin - tini) << " ms" << "\n";
+    }
+}
+```
+_tabla tiempos_
+
+Este test basicamente trata de estudiar el tiempo que tarda nuestro programa en ejecutarse bajo "estres" con muchas llamadas al metodo,
+en la tabla anterior podemos observar el tiempo que tarda para distintos numeros de llamadas.
+
+### Segunda implementacion
+Esta implementacion trata de mejorar en eficiencia la anterior. Para esto debiamos de recordar que el TDA imagen esta representado
+por un puntero a punteros, y teniamos que aprovechar esta representacion para poder hacer del metodo uno mas eficiente. En
+efecto, al solo querer barajar las filas, no tenemos porque copiar el contenido de una fila a otra, simplemente tenemos que
+__cambiar las referencias a columna que apuntan los punteros fila__. Por tanto, el codigo queda de esta manera:
+
+```
+    const int p = 9973;
+    int newr;
+
+    // Creamos un nuevo puntero a punteros
+    byte ** n_img = new byte * [rows];
+
+    // Asignamos las filas barajadas de img a n_img
+    for (int r = 0; r < this->rows; ++r) {
+        newr = (r*p) % this->rows;
+        n_img[r] = this->img[newr];
+    }
+
+    // Le asignamos a img la nueva imagen con filas barajadas
+    this->img = n_img;
+    n_img = nullptr;
+
+```
+
+Ahora el orden de eficiencia no depende del numero de columnas, solo de las filas, consiguiendo asi un orden de eficiencia
+__O(nrows)__.
+
+Sin embargo, esto tiene un problema, la manera en la que el programa escribe en disco, es de forma consecutiva en memoria,
+y al solo cambiar la direccion a lo que apuntan los punteros fila, no estamos cambiando en nada su representacion interna.
+Esto se puede solucionar modificando el metodo Image::Save para que funciones correctamente.
+
+```
+bool Image::Save (const char * file_path) const {
+    // TODO this makes assumptions about the internal representation
+    // byte * p = img[0];
+
+    // This does not make assumptions about the internal representation
+    byte *p = new byte[rows*cols];
+    for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < cols; ++j) {
+            p[j + cols*i] = img[i][j];
+        }
+    }
+    return WritePGMImage(file_path, p, rows, cols);
+}
+```
+Como podemos ver este metodo tiene un orden de eficiencia __O(nrows * ncols)__, pues estamos copiando el contenido de la imagen
+en un buffer de datos _p_.
+
+Por tanto, esta implementacion resuelve nuestro problema, pues ya podemos barajar de manera mas eficiente las imagenes
+a disposicion con una frecuencia mayor, y solo tendria un orden de eficiencia __O(nrows + nrows*ncols) = O(nrows*ncols)__
+en el caso ultimo de querer guardar la imagen.
+
+Finalmente, visualicemos el comportamiento del programa con los mismos test de la anterior implementacion
+
+#### Test 1. Distinto numero de filas
+_imagen exper1_
+
+Como se puede observar, en el mismo caso de uso, la nueva implementacion concede un comportamiento lineal despreciable teniendo
+tiempos de 2-6 milisegundos en promedio y se necesitarian un numero mas grande de iteraciones para visualizar mejor la recta.
+
+#### Test 2. Distinto numero de columnas
+_imagen exper2_
+
+Este caso es diferente al primer caso, pues ahora que ya sabemos que la nueva implementacion es __O(nrows)__, el que cambien
+el numero de columnas de la imagen no afecta en nada a que la curva crezca, resultando en una linea constante como se puede ver
+en la grafica.
+
+#### Test 3. Distinto numero de llamadas a ShuffleRows
+_tabla tiempos_
+
+Y como se puede observar, los tiempos que tarda el programa en ejecutar la misma cantidad de llamadas que la implementacion
+anterior es menor.
 
 */
