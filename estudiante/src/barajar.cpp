@@ -120,8 +120,11 @@ int main (int argc, char *argv[]){
 
 
     int n_test;
-    cout << "Choose test: "; cin >> n_test;
+    cout << "Choose test (0 to skip): "; cin >> n_test;
     switch(n_test) {
+        case 0:
+            cout << "Continuing with program..." << "\n";
+            break;
         case 1:
             test_rows();
             break;

@@ -36,13 +36,63 @@ Calcula el negativo de una imagen
 @param "<FichImagenOriginal>" Imagen PGM a la que se va a calcular
 @param <FichImagenDestino> Imagen PGM resultado de calcular el negativo
 
+@image html Crop.png
+## Subimagen
 
-*Imagen resultados*
+Genera una imagen a partir de otra, la imagen generada será más pequeña que la original o del mismo tamaño
+
+> __subimagen__ \<FichImagenOriginal\> \<FichImagenDestino\> \<fila\> \<col\> \<filas_sub\>  \<cols_sub\>
+@param "<FichImagenOriginal>" Imagen PGM a la que se va a calcular
+@param <FichImagenDestino> Imagen PGM resultado de calcular la subimagen
+@param "<fila>" Fila desde la que se recorta la imagen, esquina superior izquierda de la imagen que se extrae
+@param "<cols>" Columna desde la que se recorta la imagen, esquina superior izquierda de la imagen que se extrae
+@param "<filas_sub>" Número de fila de la subimagen que se extrae.
+@param "<cols_sub>" Número de columnas dela subimagen que se extrae.
+
+@image html Zoom.png
+## Zoom
+
+Realizar zoom sobre la parte de una imagen
+
+> __zoom__ \<FichImagenOriginal\> \<FichImagenDestino\> \<fila\> \<col\> \<lado\>
+@param "<FichImagenOriginal" Nombre del fichero que contiene la imagen original
+@param "<FichImagenDestino" Nombre del fichero que contiene el resultado del zoom
+@param "<Fila>" Fila desde la que se hace zoom la imagen, esquina superior izquierda de la imagen que se extrae
+@param "<col>" Columna desde la que se hace zoom la iamgen, esquina superior izquierda de la imagen que se extrae
+@param "<lado>" Tamaño del lado del cuadrado, este deberá estar incluido en la imagen
+
+@image html Icon.png
+## Icono
+
+Crear una imagen de un tamaño muy reducido a partir de otra original
+
+> __icono__ \<FichImagenOriginal\> \<FichImagenDestino\> \<factor\>
+@param "<FichImagenOriginal" Nombre del fichero que contiene la imagen original
+@param "<FichImagenDestino" Nombre del fichero que contiene el resultado del icono
+@param "<factor>" Factor de reducción.
+
+@image html Adjust.png
+## Contraste
+
+Modifca el contraste de una imagen
+
+> __contraste__ \<FichImagenOriginal\> \<FichImagenDestino\> \<e1\> \<e2\> \<s1\> \<s2\>
+@param "<FichImagenOriginal" Nombre del fichero que contiene la imagen original
+@param "<FichImagenDestino" Nombre del fichero que contiene el resultado
+@param "<e1>" Valor usado para el umbral mínimo de entrada
+@param "<e2>" Valor usado para el umbral máximo de entrada
+@param "<s1>" Valor usado para el umbral mínimo de salida
+@param "<s2>" Valor usado para el umbral máximo de salida
+
+
+@image html Shuffle.png
 ## Barajar:
 
 Baraja pseudoaleatoriamente las filas de la imagen.
 
-_parametros_
+> __barajar__\<FichImagenOriginal\> \<FichImagenDestino\>
+@param "<FichImagenOriginal" Nombre del fichero que contiene la imagen original
+@param "<FichImagenDestino" Nombre del fichero que contiene el resultado
 
 Para este ejercicio ademas de implementar y documentar la funcion `ShuffleRows`, debiamos de comentar las diferencias entre
 la implementacion propuesta en el guion de practicas con una implementacion nueva que debiamos de implementar, haciendo uso
@@ -70,6 +120,10 @@ temporal en la imagen original, pues esta funcion no pretende generar una nueva 
 el orden de eficiencia de esta primera aproximacion es de __O(rows * cols)__, si tenemos en cuenta el hecho de que se esta volviendo
 a iterar sobre la imagen temporal para copiar la nueva imagen que es de orden __O(rows * cols)__, entonces el orden de eficiencia
 seria de __O((rows*cols) ^ 2)__; en el caso de la imagen usada para probar el codigo seria __O(n^2)__, siendo n = rows = cols.
+
+Su estudiando su eficiencia experimental para distintos valores de n crecientes, concluimos que efectivamente su comportamiento es cuadratico.
+
+@image html exper3.png
 
 A continuacion vamos a ver los resultados de los tests con esta implementacion con el objetivo de observar el comportamiento
 de esta:
@@ -99,7 +153,8 @@ void test_rows() {
     }
 }
 ```
-_imagen exper1_
+
+@image html exper1.png
 
 Como se puede observar, el comportamiento de esta grafica parece ser lineal. Esto se debe a que estamos dejando el numero de
 columnas fijo mientras que el numero de filas crece, por lo tanto el orden de complejidad seria: __O(nrows * ncols)__
@@ -130,7 +185,8 @@ void test_cols() {
     }
 }
 ```
-_imagen exper2_
+
+@image html exper2.png
 
 Este test tiene bastante similitud con el anterior, pues tiene la misma metodologia: el numero de filas se que da fijo y el
 de columnas es el que va cambiando con cada iteracion. Por tanto, el orden de eficiencia de este codigo es
@@ -157,10 +213,24 @@ void test_calls(Image image) {
     }
 }
 ```
-_tabla tiempos_
 
-Este test basicamente trata de estudiar el tiempo que tarda nuestro programa en ejecutarse bajo "estres" con muchas llamadas al metodo,
-en la tabla anterior podemos observar el tiempo que tarda para distintos numeros de llamadas.
+
+| __Numero de llamadas__ | __Tiempo de ejecucion (ms)__ |
+| ---------------------- | ------------------------ |
+| 0                      | 0                        |
+| 100                    | 147856               |
+| 200                    | 113676                |
+| 300                    | 132002                |
+| 400                    | 119010                |
+| 500                    | 113557                |
+| 600                    | 115162                |
+| 700                    | 120546                |
+| 800                    | 116977                |
+| 900                    | 121617                |
+
+
+Este test trata de estudiar el tiempo que tarda nuestro programa en ejecutarse bajo "estres" con muchas llamadas al metodo,
+en la tabla podemos observar el tiempo que tarda para distintos numeros de llamadas.
 
 ### Segunda implementacion
 Esta implementacion trata de mejorar en eficiencia la anterior. Para esto debiamos de recordar que el TDA imagen esta representado
@@ -189,6 +259,10 @@ __cambiar las referencias a columna que apuntan los punteros fila__. Por tanto, 
 
 Ahora el orden de eficiencia no depende del numero de columnas, solo de las filas, consiguiendo asi un orden de eficiencia
 __O(nrows)__.
+
+Su estudio experimental nos permite ver que efectivamente su comportamiento es lineal.
+
+@image html exper3.2.png
 
 Sin embargo, esto tiene un problema, la manera en la que el programa escribe en disco, es de forma consecutiva en memoria,
 y al solo cambiar la direccion a lo que apuntan los punteros fila, no estamos cambiando en nada su representacion interna.
@@ -219,22 +293,36 @@ en el caso ultimo de querer guardar la imagen.
 Finalmente, visualicemos el comportamiento del programa con los mismos test de la anterior implementacion
 
 #### Test 1. Distinto numero de filas
-_imagen exper1_
+
+@image html exper1.2.png
 
 Como se puede observar, en el mismo caso de uso, la nueva implementacion concede un comportamiento lineal despreciable teniendo
-tiempos de 2-6 milisegundos en promedio y se necesitarian un numero mas grande de iteraciones para visualizar mejor la recta.
+tiempos de 2-4 milisegundos en promedio.
 
 #### Test 2. Distinto numero de columnas
 _imagen exper2_
+
+@image html exper2.2.png
 
 Este caso es diferente al primer caso, pues ahora que ya sabemos que la nueva implementacion es __O(nrows)__, el que cambien
 el numero de columnas de la imagen no afecta en nada a que la curva crezca, resultando en una linea constante como se puede ver
 en la grafica.
 
 #### Test 3. Distinto numero de llamadas a ShuffleRows
-_tabla tiempos_
+| __Numero de llamadas__ | __Tiempo de ejecucion (ms)__ |
+| ---------------------- | ------------------------ |
+| 0                      | 0                        |
+| 100                    | 362                      |
+| 200                    | 332                      |
+| 300                    | 244                      |
+| 400                    | 227                      |
+| 500                    | 221                      |
+| 600                    | 221                      |
+| 700                    | 246                      |
+| 800                    | 293                      |
+| 900                    | 521                      |
 
 Y como se puede observar, los tiempos que tarda el programa en ejecutar la misma cantidad de llamadas que la implementacion
-anterior es menor.
+anterior es notablemente menor.
 
 */
