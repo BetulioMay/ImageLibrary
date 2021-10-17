@@ -307,13 +307,12 @@ Como se puede observar, en el mismo caso de uso, la nueva implementacion concede
 tiempos de 2-4 milisegundos en promedio.
 
 #### Test 2. Distinto numero de columnas
-_imagen exper2_
 
 @image html exper2.2.png
 
 Este caso es diferente al primer caso, pues ahora que ya sabemos que la nueva implementacion es __O(nrows)__, el que cambien
-el numero de columnas de la imagen no afecta en nada a que la curva crezca, resultando en una linea constante como se puede ver
-en la grafica.
+el numero de columnas de la imagen no afecta en nada a que la curva crezca, resultando primero en una fluctuación
+y luego se estabiliza a una linea constante como se puede ver en la grafica.
 
 #### Test 3. Distinto numero de llamadas a ShuffleRows
 | __Numero de llamadas__ | __Tiempo de ejecucion (ms)__ |

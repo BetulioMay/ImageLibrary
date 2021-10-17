@@ -36,7 +36,7 @@ void test_rows() {
         img.ShuffleRows();
         tfin = clock();
 
-        cout << "N filas: " << nrows << "\t" << (double)(tfin - tini) << " ms" << "\n";
+        cout << setprecision(10) << "N filas: " << nrows << "\t" << ((double)tfin - (double)tini) / (double)CLOCKS_PER_SEC << " sec" << "\n";
     }
 
 }
@@ -61,7 +61,7 @@ void test_cols() {
         img.ShuffleRows();
         tfin = clock();
 
-        cout << "N cols: " << ncols << "\t" << (double)(tfin - tini) << " ms" << "\n";
+        cout << "N cols: " << ncols << "\t" << ((double)tfin - (double)tini) / (double)CLOCKS_PER_SEC << " sec" << "\n";
     }
 
 }
