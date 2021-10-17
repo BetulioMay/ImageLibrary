@@ -23,7 +23,14 @@ mayor parte de la sintaxis de Doxygen para comentar código en su
 
 # Introducción
 
-A RELLENAR POR EL ESTUDIANTE
+El trabajo a continuación es la realización de la práctica 2 de la asignatura de Estructura de Datos que trata los temas
+1 y 2 sobre la especificación e implementación de un Tipo de Dato Abstracto (TDA) para la representación de una imágen. En
+concreto se nos pedía implementar los métodos de la clase Image: Image::Crop, Image::Zoom2x, Image::Subsample, Image::AdjustContrast
+y de manera opcional Image::ShuffleRows, cuales se encuentran en el fichero imageop.cpp; para esto se nos proporcionaba
+de la clase Image con sus métodos primitivos y privados, los cuales algunos debiamos de completar o modificar como
+Image::Mean y Image::Save; y también se nos proporcionaba la clase ImageIO para las operaciones de Entrada y Salida.
+Con este trabajo se pretende afianzar los conocimientos y poner en práctica lo aprendido en clases de teoría acerca de los
+TDA y el análisis de eficiencia.
 
 # Ejecutables
 

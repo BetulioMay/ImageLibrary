@@ -143,13 +143,14 @@ void Image::ShuffleRows() {
 }
 
 Image Image::Subsample(int factor) const {
-    int i_rows = floor(rows*1.0 / factor*1.0), i_cols = floor(cols*1.0 / factor*1.0);
-    Image icon(i_rows, i_cols);
+    int n_rows = floor(rows * 1.0 / factor * 1.0), n_cols = floor(cols * 1.0 / factor * 1.0);
+    Image icon(n_rows, n_cols);
+    byte value;
 
-    for (int i = 0, i_icon = 0; i < rows-(rows%factor); i+=factor, ++i_icon) {
-        for (int j = 0, j_icon = 0; j < cols-(cols%factor); j+=factor, ++j_icon) {
+    for (int i = 0, i_icon = 0; i_icon < n_rows; i+=factor, ++i_icon) {
+        for (int j = 0, j_icon = 0; j_icon < n_cols; j+=factor, ++j_icon) {
             // Tomamos submatrices de orden factor x factor y calculamos la media de todos sus elementos
-            byte value = (byte)round(this->Mean(i, j, factor, factor));
+            value = (byte)round(this->Mean(i, j, factor, factor));
             // Asignamos el valor de la media redondeada al valor mas proximo a la imagen icono
             icon.set_pixel(i_icon, j_icon, value);
         }
@@ -160,12 +161,10 @@ Image Image::Subsample(int factor) const {
 }
 
 double Image::Mean(int row, int col, int height, int width) const {
-    int orig_width = this->get_rows();
-    int orig_height = this->get_cols();
     double sum = 0;
 
-    for(int i = row; i-row < height && i < orig_height; ++i) {
-        for(int j = col; j-col < width && j < orig_width; ++j) {
+    for(int i = row; i-row < height; ++i) {
+        for(int j = col; j-col < width; ++j) {
             sum += (double)this->get_pixel(i, j);
         }
     }
